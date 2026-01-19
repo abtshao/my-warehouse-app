@@ -3,10 +3,10 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# --- 页面配置 ---
-st.set_page_config(page_title="极简仓管 Pro", layout="wide", initial_sidebar_state="expanded")
+# --- 脪鲁脙忙脜盲脰脙 ---
+st.set_page_config(page_title="录芦录貌虏脰鹿脺 Pro", layout="wide", initial_sidebar_state="expanded")
 
-# --- 自定义样式 ---
+# --- 脳脭露篓脪氓脩霉脢陆 ---
 st.markdown("""
     <style>
     .main { background-color: #f8f9fa; }
@@ -15,116 +15,116 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 数据初始化 (实际应用建议连接数据库) ---
+# --- 脢媒戮脻鲁玫脢录禄炉 (脢碌录脢脫娄脫脙陆篓脪茅脕卢陆脫脢媒戮脻驴芒) ---
 if 'inventory' not in st.session_state:
-    # 预设一些演示数据
+    # 脭陇脡猫脪禄脨漏脩脻脢戮脢媒戮脻
     st.session_state.inventory = pd.DataFrame([
-        {"SKU": "A001", "描述": "轴承", "数量": 50, "单位": "个", "阈值": 100, "位置": "A区-01", "供应商": "工厂A"},
-        {"SKU": "B002", "描述": "传感器", "数量": 150, "单位": "组", "阈值": 50, "位置": "B区-05", "供应商": "代理商B"}
+        {"SKU": "A001", "脙猫脢枚": "脰谩鲁脨", "脢媒脕驴": 50, "碌楼脦禄": "赂枚", "茫脨脰碌": 100, "脦禄脰脙": "A脟酶-01", "鹿漏脫娄脡脤": "鹿陇鲁搂A"},
+        {"SKU": "B002", "脙猫脢枚": "麓芦赂脨脝梅", "脢媒脕驴": 150, "碌楼脦禄": "脳茅", "茫脨脰碌": 50, "脦禄脰脙": "B脟酶-05", "鹿漏脫娄脡脤": "麓煤脌铆脡脤B"}
     ])
 if 'history' not in st.session_state:
-    st.session_state.history = pd.DataFrame(columns=["时间", "SKU", "类型", "数量", "操作员"])
+    st.session_state.history = pd.DataFrame(columns=["脢卤录盲", "SKU", "脌脿脨脥", "脢媒脕驴", "虏脵脳梅脭卤"])
 
-# --- 权限管理逻辑 ---
+# --- 脠篓脧脼鹿脺脌铆脗脽录颅 ---
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
 
 def login():
-    st.title("?? 仓库管理系统登录")
-    user = st.text_input("用户名")
-    pwd = st.text_input("密码", type="password")
-    if st.button("进入系统"):
+    st.title("?? 虏脰驴芒鹿脺脌铆脧碌脥鲁碌脟脗录")
+    user = st.text_input("脫脙禄搂脙没")
+    pwd = st.text_input("脙脺脗毛", type="password")
+    if st.button("陆酶脠毛脧碌脥鲁"):
         if user == "admin" and pwd == "123456":
             st.session_state.authenticated = True
-            st.session_state.role = "管理员"
+            st.session_state.role = "鹿脺脌铆脭卤"
             st.rerun()
         elif user == "staff":
             st.session_state.authenticated = True
-            st.session_state.role = "员工"
+            st.session_state.role = "脭卤鹿陇"
             st.rerun()
         else:
-            st.error("用户名或密码错误")
+            st.error("脫脙禄搂脙没禄貌脙脺脗毛麓铆脦贸")
 
 if not st.session_state.authenticated:
     login()
     st.stop()
 
-# --- 侧边栏导航 ---
+# --- 虏脿卤脽脌赂碌录潞陆 ---
 st.sidebar.title(f"?? {st.session_state.role}")
-menu = st.sidebar.radio("功能菜单", ["?? 库存看板", "?? 入库登记", "?? 出库登记", "?? 历史记录"])
-if st.sidebar.button("退出登录"):
+menu = st.sidebar.radio("鹿娄脛脺虏脣碌楼", ["?? 驴芒麓忙驴麓掳氓", "?? 脠毛驴芒碌脟录脟", "?? 鲁枚驴芒碌脟录脟", "?? 脌煤脢路录脟脗录"])
+if st.sidebar.button("脥脣鲁枚碌脟脗录"):
     st.session_state.authenticated = False
     st.rerun()
 
-# --- 功能模块：库存看板 ---
-if menu == "?? 库存看板":
-    st.header("实时库存概览")
+# --- 鹿娄脛脺脛拢驴茅拢潞驴芒麓忙驴麓掳氓 ---
+if menu == "?? 驴芒麓忙驴麓掳氓":
+    st.header("脢碌脢卤驴芒麓忙赂脜脌脌")
     
-    # 统计指标
-    low_stock_df = st.session_state.inventory[st.session_state.inventory['数量'] < st.session_state.inventory['阈值']]
+    # 脥鲁录脝脰赂卤锚
+    low_stock_df = st.session_state.inventory[st.session_state.inventory['脢媒脕驴'] < st.session_state.inventory['茫脨脰碌']]
     c1, c2, c3 = st.columns(3)
-    c1.metric("总SKU种类", len(st.session_state.inventory))
-    c2.metric("库存预警数量", len(low_stock_df), delta=-len(low_stock_df), delta_color="inverse")
-    c3.metric("最后更新", datetime.now().strftime("%H:%M"))
+    c1.metric("脳脺SKU脰脰脌脿", len(st.session_state.inventory))
+    c2.metric("驴芒麓忙脭陇戮炉脢媒脕驴", len(low_stock_df), delta=-len(low_stock_df), delta_color="inverse")
+    c3.metric("脳卯潞贸赂眉脨脗", datetime.now().strftime("%H:%M"))
 
-    # 库存表格显示
+    # 驴芒麓忙卤铆赂帽脧脭脢戮
     def color_low_stock(row):
-        return ['background-color: #ffdbdb' if row['数量'] < row['阈值'] else '' for _ in row]
+        return ['background-color: #ffdbdb' if row['脢媒脕驴'] < row['茫脨脰碌'] else '' for _ in row]
     
-    st.subheader("库存明细表")
+    st.subheader("驴芒麓忙脙梅脧赂卤铆")
     st.dataframe(st.session_state.inventory.style.apply(color_low_stock, axis=1), use_container_width=True)
 
-    # 导出功能 (仅限管理员)
-    if st.session_state.role == "管理员":
+    # 碌录鲁枚鹿娄脛脺 (陆枚脧脼鹿脺脌铆脭卤)
+    if st.session_state.role == "鹿脺脌铆脭卤":
         csv = st.session_state.inventory.to_csv(index=False).encode('utf-8-sig')
-        st.download_button("?? 导出库存为 Excel/CSV", data=csv, file_name="inventory.csv", mime="text/csv")
+        st.download_button("?? 碌录鲁枚驴芒麓忙脦陋 Excel/CSV", data=csv, file_name="inventory.csv", mime="text/csv")
 
-# --- 功能模块：入库登记 ---
-elif menu == "?? 入库登记":
-    st.header("新货入库录入")
-    st.info("?? 手机端：点击SKU框可唤起扫码枪/摄像头。")
+# --- 鹿娄脛脺脛拢驴茅拢潞脠毛驴芒碌脟录脟 ---
+elif menu == "?? 脠毛驴芒碌脟录脟":
+    st.header("脨脗禄玫脠毛驴芒脗录脠毛")
+    st.info("?? 脢脰禄煤露脣拢潞碌茫禄梅SKU驴貌驴脡禄陆脝冒脡篓脗毛脟鹿/脡茫脧帽脥路隆拢")
     
     with st.form("in_form", clear_on_submit=True):
         col1, col2 = st.columns(2)
         with col1:
-            sku = st.text_input("?? SKU码（支持扫码输入）")
-            desc = st.text_input("货物描述")
-            qty = st.number_input("入库数量", min_value=1)
+            sku = st.text_input("?? SKU脗毛拢篓脰搂鲁脰脡篓脗毛脢盲脠毛拢漏")
+            desc = st.text_input("禄玫脦茂脙猫脢枚")
+            qty = st.number_input("脠毛驴芒脢媒脕驴", min_value=1)
         with col2:
-            loc = st.text_input("存放位置")
-            threshold = st.number_input("设置预警阈值", min_value=0, value=20)
-            photo = st.file_uploader("?? 拍照或选择照片", type=['png', 'jpg', 'jpeg'])
+            loc = st.text_input("麓忙路脜脦禄脰脙")
+            threshold = st.number_input("脡猫脰脙脭陇戮炉茫脨脰碌", min_value=0, value=20)
+            photo = st.file_uploader("?? 脜脛脮脮禄貌脩隆脭帽脮脮脝卢", type=['png', 'jpg', 'jpeg'])
         
-        if st.form_submit_button("确认入库"):
-            # 简单逻辑：如果SKU存在则累加，不存在则新建
+        if st.form_submit_button("脠路脠脧脠毛驴芒"):
+            # 录貌碌楼脗脽录颅拢潞脠莽鹿没SKU麓忙脭脷脭貌脌脹录脫拢卢虏禄麓忙脭脷脭貌脨脗陆篓
             if sku in st.session_state.inventory['SKU'].values:
-                st.session_state.inventory.loc[st.session_state.inventory['SKU'] == sku, '数量'] += qty
+                st.session_state.inventory.loc[st.session_state.inventory['SKU'] == sku, '脢媒脕驴'] += qty
             else:
-                new_item = {"SKU": sku, "描述": desc, "数量": qty, "单位": "个", "阈值": threshold, "位置": loc, "供应商": "新录入"}
+                new_item = {"SKU": sku, "脙猫脢枚": desc, "脢媒脕驴": qty, "碌楼脦禄": "赂枚", "茫脨脰碌": threshold, "脦禄脰脙": loc, "鹿漏脫娄脡脤": "脨脗脗录脠毛"}
                 st.session_state.inventory = pd.concat([st.session_state.inventory, pd.DataFrame([new_item])], ignore_index=True)
             
-            # 记录历史
-            new_log = {"时间": datetime.now(), "SKU": sku, "类型": "入库", "数量": qty, "操作员": st.session_state.role}
+            # 录脟脗录脌煤脢路
+            new_log = {"脢卤录盲": datetime.now(), "SKU": sku, "脌脿脨脥": "脠毛驴芒", "脢媒脕驴": qty, "虏脵脳梅脭卤": st.session_state.role}
             st.session_state.history = pd.concat([st.session_state.history, pd.DataFrame([new_log])], ignore_index=True)
-            st.success(f"? SKU {sku} 入库成功！")
+            st.success(f"? SKU {sku} 脠毛驴芒鲁脡鹿娄拢隆")
 
-# --- 功能模块：出库登记 ---
-elif menu == "?? 出库登记":
-    st.header("货物出库")
-    sku_to_out = st.selectbox("选择要出库的SKU", st.session_state.inventory['SKU'].tolist())
-    current_qty = st.session_state.inventory.loc[st.session_state.inventory['SKU'] == sku_to_out, '数量'].values[0]
+# --- 鹿娄脛脺脛拢驴茅拢潞鲁枚驴芒碌脟录脟 ---
+elif menu == "?? 鲁枚驴芒碌脟录脟":
+    st.header("禄玫脦茂鲁枚驴芒")
+    sku_to_out = st.selectbox("脩隆脭帽脪陋鲁枚驴芒碌脛SKU", st.session_state.inventory['SKU'].tolist())
+    current_qty = st.session_state.inventory.loc[st.session_state.inventory['SKU'] == sku_to_out, '脢媒脕驴'].values[0]
     
-    st.write(f"当前剩余数量: **{current_qty}**")
-    out_qty = st.number_input("本次领用数量", min_value=1, max_value=int(current_qty))
+    st.write(f"碌卤脟掳脢拢脫脿脢媒脕驴: **{current_qty}**")
+    out_qty = st.number_input("卤戮麓脦脕矛脫脙脢媒脕驴", min_value=1, max_value=int(current_qty))
     
-    if st.button("确认出库"):
-        st.session_state.inventory.loc[st.session_state.inventory['SKU'] == sku_to_out, '数量'] -= out_qty
-        new_log = {"时间": datetime.now(), "SKU": sku_to_out, "类型": "出库", "数量": -out_qty, "操作员": st.session_state.role}
+    if st.button("脠路脠脧鲁枚驴芒"):
+        st.session_state.inventory.loc[st.session_state.inventory['SKU'] == sku_to_out, '脢媒脕驴'] -= out_qty
+        new_log = {"脢卤录盲": datetime.now(), "SKU": sku_to_out, "脌脿脨脥": "鲁枚驴芒", "脢媒脕驴": -out_qty, "虏脵脳梅脭卤": st.session_state.role}
         st.session_state.history = pd.concat([st.session_state.history, pd.DataFrame([new_log])], ignore_index=True)
-        st.success("? 出库成功！")
+        st.success("? 鲁枚驴芒鲁脡鹿娄拢隆")
         st.rerun()
 
-# --- 功能模块：历史记录 ---
-elif menu == "?? 历史记录":
-    st.header("操作流水记录")
-    st.table(st.session_state.history.sort_values("时间", ascending=False))
+# --- 鹿娄脛脺脛拢驴茅拢潞脌煤脢路录脟脗录 ---
+elif menu == "?? 脌煤脢路录脟脗录":
+    st.header("虏脵脳梅脕梅脣庐录脟脗录")
+    st.table(st.session_state.history.sort_values("脢卤录盲", ascending=False))
